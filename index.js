@@ -21,8 +21,10 @@ app.route("/api/users/:id")
     .get((req, res) => {
         const id = Number(req.params.id);
         const user = users.find((user) => user.id === id);
-
-        return res.json(user);
+        if(id>users.length){
+            return res.status(404).json({status:"error",message:"user not found"})
+        }
+        return res.status(201).json(user);
     })
     .patch((req, res) => {
         return res.send({ status: "pending" });
@@ -34,14 +36,20 @@ app.route("/api/users/:id")
 
 app.route("/api/users")
     .get((req, res) => {
-        res.json(req.query);
+
+        res.setHeader("name","dienshexress")
+        console.log(req.headers)
+        res.json(users);
     })
     .post((req, res) => {
 
         const body = req.body;
+        if(!body||!body.first_name||!body.last_name||!body.email||!body.gender||!body.job_title){
+            res.status(400).json({staus:"error",Meassage:"please provoid all the information in the body"})
+        }
         users.push({ id: users.length + 1, ...body })
         fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
-            return res.send({ status: "pending", message: "User created" });
+            return res.status(201).json({ status: "pending", message: "User created" });
         })
     })
 

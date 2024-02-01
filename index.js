@@ -3,16 +3,47 @@ const app = express();
 const fs = require('fs');
 const users = require('./MOCK_DATA.json');
 
-app.use(express.urlencoded({ extended: true }));
-
-app.use((req, res, next) => {
-
-    fs.appendFile("./logs.txt", `Request Method: ${req.method} Request URL: ${req.url}    Time: ${new Date().toLocaleString()}\n`, (err, data) => {
-        return next();
-    })
-
-
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/myApp').then(()=>{
+    console.log("connected to database")
+}).catch((err)=>{
+    console.log("mongo error",err)
 })
+
+const userSchema = new mongoose.Schema({
+    firstname:{
+        type:String,
+        required:true,
+    },
+    lastname:{
+        type:String,
+       
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+    },
+    jobtitle:{
+        type:String,
+
+    },
+    gender:{
+        type:String,
+    }
+});
+
+const User = mongoose.model("User",userSchema);
+// app.use(express.urlencoded({ extended: true }));
+
+// app.use((req, res, next) => {
+
+//     fs.appendFile("./logs.txt", `Request Method: ${req.method} Request URL: ${req.url}    Time: ${new Date().toLocaleString()}\n`, (err, data) => {
+//         return next();
+//     })
+
+
+// })
 
 
 
@@ -37,20 +68,28 @@ app.route("/api/users/:id")
 app.route("/api/users")
     .get((req, res) => {
 
-        res.setHeader("name","dienshexress")
-        console.log(req.headers)
+        // res.setHeader("name","dienshexress")
+        // console.log(req.headers)
         res.json(users);
     })
-    .post((req, res) => {
+    .post( async (req, res) => {
 
         const body = req.body;
         if(!body||!body.first_name||!body.last_name||!body.email||!body.gender||!body.job_title){
             res.status(400).json({staus:"error",Meassage:"please provoid all the information in the body"})
         }
-        users.push({ id: users.length + 1, ...body })
-        fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
-            return res.status(201).json({ status: "pending", message: "User created" });
+        
+        const result=await users.create({
+            firstname:body.first_name,
+            lastname:body.last_name,
+            email:body.email,
+            jobtitle:body.job_title,
+            gender:body.gender
+
         })
+        console.log(result)
+
+        return res.status(201).json({ status: "success", message: "user created" });
     })
 
 

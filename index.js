@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
-const fs = require('fs');
-const users = require('./MOCK_DATA.json');
+// const fs = require('fs');
+// const users = require('./MOCK_DATA.json');
 
 const mongoose = require('mongoose');
+
 mongoose.connect('mongodb://localhost:27017/myApp').then(()=>{
     console.log("connected to database")
 }).catch((err)=>{
@@ -11,29 +12,27 @@ mongoose.connect('mongodb://localhost:27017/myApp').then(()=>{
 })
 
 const userSchema = new mongoose.Schema({
-    firstname:{
-        type:String,
-        required:true,
+    firstname: {
+        type: String,
+        required: true,
     },
-    lastname:{
-        type:String,
-       
+    lastname: {
+        type: String,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+        type: String,
+        required: true,
+        unique: true,
     },
-    jobtitle:{
-        type:String,
-
+    jobtitle: {
+        type: String,
     },
-    gender:{
-        type:String,
+    gender: {
+        type: String,
     }
 });
 
-const User = mongoose.model("User",userSchema);
+const user = mongoose.model("user",userSchema);
 // app.use(express.urlencoded({ extended: true }));
 
 // app.use((req, res, next) => {
@@ -48,21 +47,21 @@ const User = mongoose.model("User",userSchema);
 
 
 
-app.route("/api/users/:id")
-    .get((req, res) => {
-        const id = Number(req.params.id);
-        const user = users.find((user) => user.id === id);
-        if(id>users.length){
-            return res.status(404).json({status:"error",message:"user not found"})
-        }
-        return res.status(201).json(user);
-    })
-    .patch((req, res) => {
-        return res.send({ status: "pending" });
-    })
-    .delete((req, res) => {
-        return res.send({ status: "pending" });
-    })
+// app.route("/api/users/:id")
+//     .get((req, res) => {
+//         const id = Number(req.params.id);
+//         const user = users.find((user) => user.id === id);
+//         if(id>user.length){
+//             return res.status(404).json({status:"error",message:"user not found"})
+//         }
+//         return res.status(201).json(user);
+//     })
+//     .patch((req, res) => {
+//         return res.send({ status: "pending" });
+//     })
+//     .delete((req, res) => {
+//         return res.send({ status: "pending" });
+//     })
 
 
 app.route("/api/users")
@@ -75,17 +74,16 @@ app.route("/api/users")
     .post( async (req, res) => {
 
         const body = req.body;
-        if(!body||!body.first_name||!body.last_name||!body.email||!body.gender||!body.job_title){
+        if(!body||!body.firstname||!body.lastname||!body.email||!body.gender||!body.jobtitle){
             res.status(400).json({staus:"error",Meassage:"please provoid all the information in the body"})
         }
         
-        const result=await users.create({
-            firstname:body.first_name,
-            lastname:body.last_name,
-            email:body.email,
-            jobtitle:body.job_title,
-            gender:body.gender
-
+        const result= await user.create({
+            firstname: body.firstname,
+            lastname: body.lastname,
+            email: body.email,
+            jobtitle: body.jobtitle,
+            gender: body.gender
         })
         console.log(result)
 

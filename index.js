@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
-// const fs = require('fs');
-// const users = require('./MOCK_DATA.json');
+
 
 const mongoose = require('mongoose');
 
